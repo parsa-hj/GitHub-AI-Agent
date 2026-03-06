@@ -1,0 +1,83 @@
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 1rem 2rem; background: #f5f5f5; }
+.nav { margin-bottom: 1.5rem; padding: 0.5rem 0; border-bottom: 1px solid #ccc; }
+.nav a { margin-right: 1rem; }
+.main { max-width: 900px; }
+h1 { font-size: 1.5rem; }
+.form label { display: block; margin-top: 0.75rem; font-weight: 600; }
+.form input[type="text"], .form textarea, .form select { width: 100%; max-width: 400px; padding: 0.4rem; margin-top: 0.25rem; }
+.form textarea { min-height: 100px; }
+.form button { margin-top: 1rem; padding: 0.5rem 1rem; cursor: pointer; }
+.hint { display: block; font-size: 0.85rem; color: #666; margin-top: 0.2rem; }
+.result-section { margin: 1.5rem 0; padding: 1rem; background: #fff; border-radius: 6px; border: 1px solid #ddd; }
+.result-section h2 { margin-top: 0; font-size: 1rem; }
+.output, .diff, .body { white-space: pre-wrap; font-size: 0.9rem; overflow-x: auto; max-height: 400px; overflow-y: auto; }
+.diff { background: #f8f8f8; }
+.title { font-weight: 600; }
+.ok { color: #0a0; }
+.warn { color: #a60; }
+.error { color: #c00; }
+.actions { line-height: 1.8; }
+.approve-form { margin-top: 1rem; }
+.approve-form .btn-approve { background: #0a0; color: #fff; margin-right: 0.5rem; }
+.approve-form .btn-reject { background: #c00; color: #fff; }
+code { background: #eee; padding: 0.1rem 0.3rem; border-radius: 3px; }
+.btn-copy { margin-top: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.85rem; cursor: pointer; }
+
+/* Loading overlay */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.6);
+    align-items: center;
+    justify-content: center;
+}
+.loading-overlay.is-visible {
+    display: flex;
+}
+.loading-box {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 260px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    border: 4px solid #e0e0e0;
+    border-top-color: #333;
+    border-radius: 50%;
+    animation: loading-spin 0.9s linear infinite;
+}
+@keyframes loading-spin {
+    to { transform: rotate(360deg); }
+}
+.loading-message { font-weight: 600; margin: 0 0 0.25rem; }
+.loading-hint { font-size: 0.85rem; color: #666; margin: 0; }
+
+/* Error page */
+.error-page .error-detail { margin-top: 1rem; padding: 1rem; background: #fff2f2; border-radius: 6px; font-size: 0.9rem; white-space: pre-wrap; }
+
+/* Status cards (home) and nav status */
+.status-cards { display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0; }
+.status-card { flex: 1; min-width: 240px; padding: 1rem 1.25rem; border-radius: 8px; border: 1px solid #ddd; background: #fff; }
+.status-card.status-ok { border-color: #0a0; background: #f0fff0; }
+.status-card.status-error { border-color: #c00; background: #fff5f5; }
+.status-card.status-warn { border-color: #a60; background: #fffaf0; }
+.status-card h2 { margin: 0 0 0.5rem; font-size: 1rem; }
+.status-badge { font-weight: 600; margin: 0.25rem 0; }
+.status-connected { color: #0a0; }
+.status-disconnected { color: #c00; }
+.status-warning { color: #a60; }
+.status-detail { font-size: 0.9rem; color: #444; margin: 0.25rem 0; }
+.status-hint { font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
+.error-detail { font-size: 0.85rem; color: #c00; }
+.nav-status { margin-left: auto; }
+.ollama-status { font-size: 0.85rem; padding: 0.2rem 0.5rem; border-radius: 4px; }
+.ollama-status.ollama-ok { background: #e0ffe0; color: #0a0; }
+.ollama-status.ollama-fail { background: #ffe0e0; color: #c00; }

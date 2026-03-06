@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Something went wrong{% endblock %}
+{% block content %}
+<h1>Something went wrong</h1>
+<p class="error">The request could not be completed.</p>
+{% if error_message %}
+<div class="error-page">
+    <p><strong>Error:</strong></p>
+    <pre class="error-detail">{{ error_message }}</pre>
+</div>
+{% endif %}
+<p><a href="/">Back to home</a></p>
+{% endblock %}

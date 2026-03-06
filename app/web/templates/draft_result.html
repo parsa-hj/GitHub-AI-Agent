@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Draft result{% endblock %}
+{% block content %}
+<h1>Draft result</h1>
+<p>[Planner] Scope validated.</p>
+<p>[Writer] Draft {{ result.draft_type | upper }} created.</p>
+<section class="result-section">
+    <h2>[Gatekeeper] Reflection verdict: {{ result.reflection_verdict }}</h2>
+    {% if result.reflection_verdict == 'FAIL' %}
+    <p class="warn">Revision required.</p>
+    {% endif %}
+    <pre class="output">{{ result.reflection_artifact }}</pre>
+</section>
+<section class="result-section">
+    <h2>Title</h2>
+    <p class="title">{{ result.title }}</p>
+</section>
+<section class="result-section">
+    <h2>Body</h2>
+    <pre class="body">{{ result.body }}</pre>
+</section>
+<form method="post" action="/approve" class="approve-form">
+    <input type="hidden" name="draft_id" value="{{ result.draft_id }}" />
+    {% if has_github_token %}
+    <button type="submit" name="approved" value="yes" class="btn-approve">Approve (create on GitHub)</button>
+    <button type="submit" name="approved" value="no" class="btn-reject">Reject</button>
+    {% else %}
+    <button type="submit" name="approved" value="yes" class="btn-approve">Copy draft / Open repo</button>
+    <p class="hint">No token set. You will get a copyable draft and links to create the {{ result.draft_type }} manually on GitHub.</p>
+    {% endif %}
+</form>
+<p><a href="/draft">Draft another</a></p>
+{% endblock %}

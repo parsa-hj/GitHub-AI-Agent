@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Review result{% endblock %}
+{% block content %}
+<h1>Review result</h1>
+<section class="result-section">
+    <h2>[Reviewer]</h2>
+    <pre class="output">{{ result.reviewer_output }}</pre>
+</section>
+<section class="result-section">
+    <h2>[Planner] Decision</h2>
+    <pre class="output">{{ result.planner_output }}</pre>
+</section>
+<section class="result-section">
+    <h2>[Gatekeeper] Reflection verdict: {{ result.reflection_verdict }}</h2>
+    <pre class="output">{{ result.reflection_artifact }}</pre>
+</section>
+{% if result.diff_preview %}
+<section class="result-section">
+    <h2>Diff preview</h2>
+    <pre class="diff">{{ result.diff_preview }}</pre>
+</section>
+{% endif %}
+<p><a href="/draft?from=review">Draft Issue or PR from this review</a> | <a href="/review">Review again</a></p>
+{% endblock %}

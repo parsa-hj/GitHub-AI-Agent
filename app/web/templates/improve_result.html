@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Improve result{% endblock %}
+{% block content %}
+<h1>Improve result</h1>
+<section class="result-section">
+    <h2>[Reviewer] Critique</h2>
+    <pre class="output">{{ result.critique }}</pre>
+</section>
+<section class="result-section">
+    <h2>[Writer] Proposed improved structured version</h2>
+    <p class="title">{{ result.improved_title }}</p>
+    <pre class="body">{{ result.improved_body }}</pre>
+</section>
+<section class="result-section">
+    <h2>[Gatekeeper] Reflection verdict: {{ result.reflection_verdict }}</h2>
+    <pre class="output">{{ result.reflection_artifact }}</pre>
+</section>
+{% if result.original_url %}
+<p><a href="{{ result.original_url }}" target="_blank" rel="noopener">Original {{ kind }} #{{ result.original_number }}</a></p>
+{% endif %}
+<p><a href="/improve">Improve another</a></p>
+{% endblock %}

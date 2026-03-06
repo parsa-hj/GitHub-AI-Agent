@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}GitHub Repository Agent{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
+        <div class="loading-box">
+            <div class="loading-spinner" role="img" aria-label="Loading"></div>
+            <p class="loading-message" id="loading-message">Working…</p>
+            <p class="loading-hint">This may take a minute. Do not close the page.</p>
+        </div>
+    </div>
+    <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/review">Review changes</a>
+        <a href="/draft">Draft Issue/PR</a>
+        <a href="/improve">Improve Issue/PR</a>
+        <span id="ollama-status-nav" class="nav-status" aria-live="polite"></span>
+    </nav>
+    <main class="main">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="/static/loading.js"></script>
+    <script src="/static/ollama-status.js"></script>
+</body>
+</html>

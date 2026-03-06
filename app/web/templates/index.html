@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}GitHub Repository Agent{% endblock %}
+{% block content %}
+<h1>GitHub Repository Agent</h1>
+<p>Uses your local Ollama model to review code, draft issues/PRs, and improve existing ones. Human approval required before creating anything on GitHub.</p>
+
+<section class="status-cards">
+    <div class="status-card {% if ollama_status.reachable and ollama_status.model_available %}status-ok{% else %}status-error{% endif %}">
+        <h2>Ollama connection</h2>
+        {% if ollama_status.reachable and ollama_status.model_available %}
+        <p class="status-badge status-connected">Connected</p>
+        <p>Model: <strong>{{ ollama_status.configured_model }}</strong></p>
+        <p class="status-detail">{{ ollama_status.message }}</p>
+        {% elif ollama_status.reachable %}
+        <p class="status-badge status-warning">Ollama running, model issue</p>
+        <p>Configured model: <strong>{{ ollama_status.configured_model }}</strong></p>
+        <p class="status-detail">{{ ollama_status.message }}</p>
+        {% if ollama_status.available_models %}
+        <p class="status-detail">Available: {{ ollama_status.available_models | join(", ") }}</p>
+        {% endif %}
+        {% else %}
+        <p class="status-badge status-disconnected">Not connected</p>
+        <p class="status-detail">{{ ollama_status.message }}</p>
+        {% if ollama_status.error %}
+        <p class="status-detail error-detail">{{ ollama_status.error }}</p>
+        {% endif %}
+        <p class="status-hint">Start Ollama (e.g. <code>ollama serve</code>).{% if ollama_status.configured_model %} Then run <code>ollama pull {{ ollama_status.configured_model }}</code> to install the model.{% endif %}</p>
+        {% endif %}
+    </div>
+    <div class="status-card {% if has_github_token %}status-ok{% else %}status-warn{% endif %}">
+        <h2>GitHub</h2>
+        {% if has_github_token %}
+        <p class="status-badge status-connected">Token set</p>
+        <p class="status-detail">You can create issues/PRs after approval.</p>
+        {% else %}
+        <p class="status-badge status-warning">Read-only</p>
+        <p class="status-detail">Review and Improve work for public repos; Draft produces copyable text—create issues/PRs manually on GitHub.</p>
+        {% endif %}
+    </div>
+</section>
+
+<ul class="actions">
+    <li><a href="/review">Review changes</a> – Analyze git diff (base branch or commit range), get category, risk, and recommendation.</li>
+    <li><a href="/draft">Draft Issue or PR</a> – From last review or from explicit instruction. Approve/Reject before creation.</li>
+    <li><a href="/improve">Improve Issue or PR</a> – Critique and suggest improved title/body for an existing issue or PR.</li>
+</ul>
+{% endblock %}

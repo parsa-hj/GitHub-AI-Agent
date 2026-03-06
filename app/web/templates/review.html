@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Review changes{% endblock %}
+{% block content %}
+<h1>Review changes</h1>
+<p>Provide either a base branch (e.g. <code>main</code>) or a commit range (e.g. <code>HEAD~3..HEAD</code>).</p>
+<p class="hint"><strong>Local repo:</strong> <code>{{ repo_path }}</code> — from <code>REPO_PATH</code> in .env. This is where <code>git diff</code> and file reads run.</p>
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+<form method="post" action="/review" class="form">
+    <label>Base branch (diff against this branch)</label>
+    <input type="text" name="base" placeholder="main" />
+    <span class="hint">Leave empty if using commit range.</span>
+    <label>Commit range (e.g. HEAD~3..HEAD)</label>
+    <input type="text" name="range_spec" placeholder="HEAD~3..HEAD" />
+    <span class="hint">Leave empty if using base branch.</span>
+    <button type="submit">Run review</button>
+</form>
+{% endblock %}

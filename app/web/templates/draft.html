@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Draft Issue or PR{% endblock %}
+{% block content %}
+<h1>Draft Issue or PR</h1>
+<p>Create a draft from your last review or from an explicit instruction. You will approve or reject before anything is created on GitHub.</p>
+<p class="hint"><strong>Target GitHub repo:</strong> Issues/PRs will be created in this repo when you approve. Set <code>GITHUB_REPO</code> in .env or enter it below.</p>
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+<form method="post" action="/draft" class="form">
+    <label>GitHub repo (owner/repo or URL)</label>
+    <input type="text" name="repo" placeholder="owner/repo or https://github.com/owner/repo" value="{{ github_repo }}" />
+    <span class="hint">Optional if set in .env. Override here for this draft.</span>
+    <label>Source</label>
+    <select name="source">
+        <option value="instruction">From instruction</option>
+        <option value="review">From last review</option>
+    </select>
+    <label>Instruction (for &quot;From instruction&quot;)</label>
+    <textarea name="instruction" rows="4" placeholder="e.g. Create an issue for missing input validation in login API."></textarea>
+    <label>Type</label>
+    <select name="draft_type">
+        <option value="issue">Issue</option>
+        <option value="pr">Pull Request</option>
+    </select>
+    <button type="submit">Generate draft</button>
+</form>
+{% endblock %}

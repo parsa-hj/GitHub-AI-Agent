@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Improve Issue or PR{% endblock %}
+{% block content %}
+<h1>Improve Issue or PR</h1>
+<p>Enter an existing issue or PR number and the repo (public repos work without a token; rate limit applies).</p>
+{% if error %}
+<p class="error">{{ error }}</p>
+{% endif %}
+<form method="post" action="/improve" class="form">
+    <label>Repo (owner/repo or GitHub URL)</label>
+    <input type="text" name="repo" placeholder="https://github.com/owner/repo or owner/repo" value="{{ default_repo }}" />
+    <span class="hint">Required if GITHUB_REPO is not set. Public repos only when no token.</span>
+    <label>Kind</label>
+    <select name="kind">
+        <option value="issue">Issue</option>
+        <option value="pr">Pull Request</option>
+    </select>
+    <label>Number</label>
+    <input type="text" name="number" placeholder="42" required />
+    <button type="submit">Improve</button>
+</form>
+{% endblock %}

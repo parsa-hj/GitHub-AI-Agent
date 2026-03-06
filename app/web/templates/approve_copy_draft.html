@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Copy draft – create on GitHub yourself{% endblock %}
+{% block content %}
+<h1>Copy this draft and create on GitHub yourself</h1>
+<p class="warn">No GitHub token is configured. Create the {{ kind }} manually using the content below.</p>
+<section class="result-section">
+    <h2>Title</h2>
+    <p class="title" id="draft-title">{{ title }}</p>
+    <button type="button" class="btn-copy" data-copy="draft-title">Copy title</button>
+</section>
+<section class="result-section">
+    <h2>Body</h2>
+    <pre class="body" id="draft-body">{{ body }}</pre>
+    <button type="button" class="btn-copy" data-copy="draft-body">Copy body</button>
+</section>
+{% if repo_slug %}
+<p><strong>Repo:</strong> {{ repo_slug }}</p>
+<p>
+    {% if kind == 'issue' %}
+    <a href="https://github.com/{{ repo_slug }}/issues/new" target="_blank" rel="noopener">Open GitHub: New issue</a>
+    {% else %}
+    <a href="https://github.com/{{ repo_slug }}/compare" target="_blank" rel="noopener">Open GitHub: New pull request</a>
+    {% endif %}
+    |
+    <a href="https://github.com/{{ repo_slug }}" target="_blank" rel="noopener">Open repo</a>
+</p>
+{% else %}
+<p class="warn">Set GITHUB_REPO in .env to see pre-filled links.</p>
+{% endif %}
+<p><a href="/">Home</a> | <a href="/draft">Draft another</a></p>
+<script>
+document.querySelectorAll('.btn-copy').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-copy');
+        var el = document.getElementById(id);
+        var text = el.textContent || el.innerText;
+        navigator.clipboard.writeText(text).then(function() { btn.textContent = 'Copied!'; });
+    });
+});
+</script>
+{% endblock %}

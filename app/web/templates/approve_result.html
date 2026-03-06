@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Approval result{% endblock %}
+{% block content %}
+<h1>Approval result</h1>
+{% if success %}
+<p class="ok">[Gatekeeper] Creating {{ kind }}…</p>
+<p>[Tool] GitHub API call successful.</p>
+{% if url %}
+<p><a href="{{ url }}" target="_blank" rel="noopener">Open {{ kind }} on GitHub</a></p>
+{% endif %}
+{% else %}
+<p class="warn">[Gatekeeper] Draft rejected. No changes made.</p>
+{% if reason == 'create_failed' %}
+<p>Creation was requested but failed (e.g. token or repo issue).</p>
+{% endif %}
+{% endif %}
+<p><a href="/">Home</a> | <a href="/draft">Draft another</a></p>
+{% endblock %}
