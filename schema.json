@@ -1,0 +1,586 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "owner": {
+          "__rl": true,
+          "value": "parsa-hj",
+          "mode": "list",
+          "cachedResultName": "parsa-hj",
+          "cachedResultUrl": "https://github.com/parsa-hj"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "satellite-locator",
+          "mode": "list",
+          "cachedResultName": "satellite-locator",
+          "cachedResultUrl": "https://github.com/parsa-hj/satellite-locator"
+        },
+        "events": [
+          "push",
+          "pull_request",
+          "issues"
+        ],
+        "options": {}
+      },
+      "id": "***",
+      "name": "GitHub Events",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [
+        256,
+        288
+      ],
+      "webhookId": "***",
+      "credentials": {
+        "githubOAuth2Api": {
+          "id": "***",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "event",
+              "value": "={{ $json.event }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "repository",
+              "value": "={{ $json.repository.full_name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "action",
+              "value": "={{ $json.action }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "data",
+              "value": "={{ JSON.stringify($json) }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "***",
+      "name": "Extract Event Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "push",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "pull_request",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event }}",
+                    "rightValue": "issues",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "***",
+      "name": "Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "timestamp",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "event_type",
+              "value": "={{ $json.event }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "repository",
+              "value": "={{ $json.repository }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "agent_response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "status",
+              "value": "completed",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "***",
+      "name": "Format Results",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1712,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Analyzes GitHub events and code changes. Reviews code quality, identifies issues, assesses impact, and provides structured analysis for decision-making.",
+        "text": "={{ $fromAI('github_event', 'The GitHub event data to analyze including event type, repository, and payload') }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Reviewer Agent. Your role is to analyze GitHub events and code changes thoroughly. For push events: review commits and code diffs. For pull requests: analyze PR content and changes. For issues: assess the issue context. Provide structured analysis including: event_type, severity, key_findings, recommendations, and requires_action (boolean)."
+        }
+      },
+      "id": "***",
+      "name": "Reviewer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1056,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "***",
+      "name": "Reviewer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        720
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "qLTC3r4MYfxL4ObH",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\"type\":\"object\",\"properties\":{\"event_type\":{\"type\":\"string\"},\"severity\":{\"type\":\"string\",\"enum\":[\"low\",\"medium\",\"high\",\"critical\"]},\"key_findings\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"recommendations\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"requires_action\":{\"type\":\"boolean\"}},\"required\":[\"event_type\",\"severity\",\"key_findings\",\"requires_action\"]}"
+      },
+      "id": "***",
+      "name": "Reviewer Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1216,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Drafts GitHub Issues and Pull Request content based on analysis and decisions. Creates well-structured, professional content ready for human approval.",
+        "text": "={{ $fromAI('content_request', 'The request specifying what to write: issue or PR, with context and requirements') }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the Writer Agent. Your role is to draft professional GitHub content (Issues or PRs) based on the Planner's decisions. Create clear, well-structured content with: title, description, context, steps (if applicable), and acceptance criteria. Format in Markdown. Return structured output with: content_type, title, body, labels (array)."
+        }
+      },
+      "id": "***",
+      "name": "Writer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1344,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "***",
+      "name": "Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        720
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "qLTC3r4MYfxL4ObH",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\"type\":\"object\",\"properties\":{\"content_type\":{\"type\":\"string\",\"enum\":[\"issue\",\"pull_request\"]},\"title\":{\"type\":\"string\"},\"body\":{\"type\":\"string\"},\"labels\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"content_type\",\"title\",\"body\"]}"
+      },
+      "id": "***",
+      "name": "Writer Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1488,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "You are the Planner Agent. Your role is to coordinate the multi-agent system: 1) Use Reviewer Agent to analyze GitHub events, 2) Based on the review, decide what action to take, 3) Use Writer Agent to draft content if needed, 4) Delegate to Gatekeeper Tool for human approval before creating Issues or PRs. Make strategic decisions about what actions are needed and coordinate the specialized agents."
+        }
+      },
+      "id": "***",
+      "name": "Planner Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1072,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama3",
+        "options": {}
+      },
+      "id": "***",
+      "name": "Planner Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        928,
+        512
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "qLTC3r4MYfxL4ObH",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "***",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        256,
+        1168
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "event",
+              "value": "push",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "repository",
+              "value": "{ \"full_name\": \"test-org/test-repo\" }",
+              "type": "object"
+            },
+            {
+              "id": "id-3",
+              "name": "action",
+              "value": "opened",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "data",
+              "value": "{ \"event\": \"push\", \"repository\": { \"full_name\": \"test-org/test-repo\", \"name\": \"test-repo\", \"owner\": { \"login\": \"test-org\" } }, \"commits\": [{ \"id\": \"abc123\", \"message\": \"Fix critical bug in authentication\", \"author\": { \"name\": \"Test Developer\", \"email\": \"dev@test.com\" }, \"modified\": [\"src/auth.js\"], \"added\": [], \"removed\": [] }], \"pusher\": { \"name\": \"Test Developer\" }, \"ref\": \"refs/heads/main\" }",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "***",
+      "name": "Sample GitHub Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        720
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "***",
+      "name": "Combine Triggers",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        256,
+        944
+      ]
+    }
+  ],
+  "connections": {
+    "GitHub Events": {
+      "main": [
+        [
+          {
+            "node": "Combine Triggers",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract Event Data": {
+      "main": [
+        [
+          {
+            "node": "Route by Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Event Type": {
+      "main": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Planner Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviewer Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviewer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Reviewer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviewer Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Reviewer Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Writer Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planner Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planner Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planner Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sample GitHub Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample GitHub Event": {
+      "main": [
+        [
+          {
+            "node": "Combine Triggers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Triggers": {
+      "main": [
+        [
+          {
+            "node": "Extract Event Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "***"
+  }
+}
