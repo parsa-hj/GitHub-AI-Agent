@@ -16,14 +16,14 @@ The agent exposes all tools via the [Model Context Protocol](https://modelcontex
 
 **Available MCP tools**:
 
-| Tool | Description |
-|------|-------------|
-| `get_diff` | Git diff for the configured repo (branch or commit range) |
-| `get_repo_info` | Current branch, last commit SHA, remote URL |
-| `read_file` | Read a file inside `REPO_PATH` (path traversal blocked) |
-| `get_issue` | Fetch a GitHub issue by number |
-| `get_pull_request` | Fetch a GitHub pull request by number |
-| `run_review` | Full Reviewer → Planner → Reflection pipeline |
+| Tool               | Description                                               |
+| ------------------ | --------------------------------------------------------- |
+| `get_diff`         | Git diff for the configured repo (branch or commit range) |
+| `get_repo_info`    | Current branch, last commit SHA, remote URL               |
+| `read_file`        | Read a file inside `REPO_PATH` (path traversal blocked)   |
+| `get_issue`        | Fetch a GitHub issue by number                            |
+| `get_pull_request` | Fetch a GitHub pull request by number                     |
+| `run_review`       | Full Reviewer → Planner → Reflection pipeline             |
 
 **STDIO mode** (Claude Desktop / MCP inspector):
 
@@ -56,14 +56,15 @@ POST /mcp/messages/   — MCP message endpoint
 
 Each sub-agent is exposed as a standalone [A2A](https://google.github.io/A2A/) endpoint so it can be called by orchestrators or other agents.
 
-| Agent | Mount path | Skill |
-|-------|-----------|-------|
-| Reviewer | `/a2a/reviewer` | `review_diff` — analyze a git diff |
-| Planner | `/a2a/planner` | `plan_action` — decide Create Issue / Create PR / No action |
-| Writer | `/a2a/writer` | `draft_content` — draft an issue or PR |
-| Gatekeeper | `/a2a/gatekeeper` | `gate_draft` — reflection PASS/FAIL check |
+| Agent      | Mount path        | Skill                                                       |
+| ---------- | ----------------- | ----------------------------------------------------------- |
+| Reviewer   | `/a2a/reviewer`   | `review_diff` — analyze a git diff                          |
+| Planner    | `/a2a/planner`    | `plan_action` — decide Create Issue / Create PR / No action |
+| Writer     | `/a2a/writer`     | `draft_content` — draft an issue or PR                      |
+| Gatekeeper | `/a2a/gatekeeper` | `gate_draft` — reflection PASS/FAIL check                   |
 
 Each agent exposes:
+
 - `GET /.well-known/agent-card.json` — the A2A AgentCard
 - `POST /` — the A2A JSON-RPC endpoint (send/receive tasks)
 
@@ -79,11 +80,11 @@ Set `A2A_BASE_URL` in your `.env` when deploying behind a proxy so the agent car
 
 You can run the agent **without a GitHub token**:
 
-| Feature   | No token (read-only) | With token |
-|----------|-----------------------|------------|
-| **Review** | Yes (local git diff + file reads) | Same |
-| **Improve** | Yes for **public** repos; provide repo as GitHub URL or `owner/repo`. Rate limit: 60 requests/hour. | Same; higher rate limit for private repos. |
-| **Draft** | Draft is generated and shown; you get **Copy draft / Open repo** to copy title and body and create the issue/PR yourself on GitHub. | After approval, the app creates the issue/PR via the API. |
+| Feature     | No token (read-only)                                                                                                                | With token                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| **Review**  | Yes (local git diff + file reads)                                                                                                   | Same                                                      |
+| **Improve** | Yes for **public** repos; provide repo as GitHub URL or `owner/repo`. Rate limit: 60 requests/hour.                                 | Same; higher rate limit for private repos.                |
+| **Draft**   | Draft is generated and shown; you get **Copy draft / Open repo** to copy title and body and create the issue/PR yourself on GitHub. | After approval, the app creates the issue/PR via the API. |
 
 - **Improve without token**: Use the repo field (e.g. `https://github.com/owner/repo` or `owner/repo`). Only public repos are accessible; GitHub’s unauthenticated rate limit applies.
 - **Draft without token**: Click “Copy draft / Open repo” after the draft is ready; the next page shows the draft with copy buttons and links to open the repo and the “New issue” or “New pull request” page.
@@ -102,6 +103,7 @@ You can run the agent **without a GitHub token**:
 1. **Ollama**: Install [Ollama](https://ollama.com) and pull a model, e.g. `ollama pull llama3.2`. Ensure Ollama is running (default: `http://localhost:11434`).
 
 2. **Clone and install**:
+
    ```bash
    cd GitHub-Agent
    pip install -r requirements.txt
@@ -129,6 +131,11 @@ Open http://127.0.0.1:8000 in a browser.
 - **Review**: Enter a base branch (e.g. `main`) or commit range (e.g. `HEAD~3..HEAD`). The agent runs the review pipeline and shows [Reviewer], [Planner], and [Gatekeeper] reflection.
 - **Draft**: Choose “From instruction” or “From last review.” With a token: Approve or Reject; on Approve the issue/PR is created. Without a token: use “Copy draft / Open repo” to get a page with copyable title/body and links to create the issue/PR on GitHub.
 - **Improve**: Enter repo (GitHub URL or `owner/repo`) and an issue or PR number. The agent fetches it (public repos work without a token), critiques it, and suggests an improved title and body.
+
+## n8n Integration
+
+An n8n workflow implementing the agentic protocols (Reviewer → Planner → Writer → Gatekeeper)
+is included in the repository at [n8n/schema.json](n8n/schema.json).
 
 ## Security
 
