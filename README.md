@@ -8,6 +8,73 @@ A personalized AI agent that uses your local **Ollama** model to review reposito
 - **Draft Issue or PR**: From your last review or from an explicit instruction. Draft includes title, body, evidence, acceptance criteria (issues), or test plan (PRs). With a token you can create after approval; without a token you get a copyable draft and links to create manually.
 - **Improve Issue or PR**: Fetch an existing issue/PR (by repo link or `owner/repo`), critique it, and propose an improved structured version.
 
+## Agentic Protocols
+
+### MCP (Model Context Protocol)
+
+The agent exposes all tools via the [Model Context Protocol](https://modelcontextprotocol.io) so any MCP-compatible client (e.g. Claude Desktop, Cursor, Cline) can invoke them directly.
+
+**Available MCP tools**:
+
+| Tool | Description |
+|------|-------------|
+| `get_diff` | Git diff for the configured repo (branch or commit range) |
+| `get_repo_info` | Current branch, last commit SHA, remote URL |
+| `read_file` | Read a file inside `REPO_PATH` (path traversal blocked) |
+| `get_issue` | Fetch a GitHub issue by number |
+| `get_pull_request` | Fetch a GitHub pull request by number |
+| `run_review` | Full Reviewer → Planner → Reflection pipeline |
+
+**STDIO mode** (Claude Desktop / MCP inspector):
+
+```bash
+python -m app.mcp_server
+```
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "github-agent": {
+      "command": "python",
+      "args": ["-m", "app.mcp_server"],
+      "env": { "REPO_PATH": "/path/to/your/repo" }
+    }
+  }
+}
+```
+
+**SSE mode** (HTTP streaming, auto-mounted when the FastAPI app starts):
+
+```
+GET /mcp/sse          — SSE stream
+POST /mcp/messages/   — MCP message endpoint
+```
+
+### A2A (Agent-to-Agent Protocol)
+
+Each sub-agent is exposed as a standalone [A2A](https://google.github.io/A2A/) endpoint so it can be called by orchestrators or other agents.
+
+| Agent | Mount path | Skill |
+|-------|-----------|-------|
+| Reviewer | `/a2a/reviewer` | `review_diff` — analyze a git diff |
+| Planner | `/a2a/planner` | `plan_action` — decide Create Issue / Create PR / No action |
+| Writer | `/a2a/writer` | `draft_content` — draft an issue or PR |
+| Gatekeeper | `/a2a/gatekeeper` | `gate_draft` — reflection PASS/FAIL check |
+
+Each agent exposes:
+- `GET /.well-known/agent-card.json` — the A2A AgentCard
+- `POST /` — the A2A JSON-RPC endpoint (send/receive tasks)
+
+**Example**: fetch the Reviewer's agent card:
+
+```bash
+curl http://localhost:8000/a2a/reviewer/.well-known/agent-card.json
+```
+
+Set `A2A_BASE_URL` in your `.env` when deploying behind a proxy so the agent cards point to the correct public URL.
+
 ## Token optional – read-only mode
 
 You can run the agent **without a GitHub token**:
@@ -27,6 +94,8 @@ You can run the agent **without a GitHub token**:
 - **Tool use**: Real tools only—`git diff`, file reads under repo, GitHub API (fetch; create only after approval when token is set).
 - **Reflection**: Gatekeeper checks drafts against a checklist (evidence, tests, policy) and produces a PASS/FAIL artifact.
 - **Multi-agent**: Reviewer (analyzes code), Planner (decides action), Writer (drafts content), Gatekeeper (reflection + approval gate).
+- **MCP**: All tools exposed via Model Context Protocol for integration with AI assistants and IDEs.
+- **A2A**: Each agent exposed as an A2A endpoint for orchestration and inter-agent communication.
 
 ## Setup
 
@@ -43,6 +112,7 @@ You can run the agent **without a GitHub token**:
    - `GITHUB_TOKEN` – **(optional)** GitHub personal access token (scope: `repo`). Omit for read-only mode.
    - `GITHUB_REPO` – repo in `owner/name` form (optional if you always provide repo in the Improve form)
    - `REPO_PATH` – absolute path to the local git repo to review (optional; defaults to current directory)
+   - `A2A_BASE_URL` – **(optional)** public base URL for A2A agent cards (default: `http://localhost:8000`)
 
 ## Run
 

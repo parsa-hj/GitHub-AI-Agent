@@ -8,13 +8,28 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from app.config import OLLAMA_MODEL, get_ollama_status, has_github_token
+from app.config import A2A_BASE_URL, OLLAMA_MODEL, get_ollama_status, has_github_token
 from app.pipelines import approve_draft, run_draft, run_improve_issue, run_improve_pr, run_review
 
 _BASE = Path(__file__).resolve().parent
 app = FastAPI(title="GitHub Repository Agent")
 templates = Jinja2Templates(directory=str(_BASE / "web" / "templates"))
 app.mount("/static", StaticFiles(directory=str(_BASE / "web" / "static")), name="static")
+
+# ---------------------------------------------------------------------------
+# MCP (Model Context Protocol) – SSE endpoint at /mcp
+# ---------------------------------------------------------------------------
+from app.mcp_server import get_mcp_sse_app  # noqa: E402
+
+app.mount("/mcp", get_mcp_sse_app())
+
+# ---------------------------------------------------------------------------
+# A2A (Agent-to-Agent) – one sub-app per agent under /a2a/{name}
+# ---------------------------------------------------------------------------
+from app.a2a.router import build_a2a_apps  # noqa: E402
+
+for _agent_name, _agent_app in build_a2a_apps(A2A_BASE_URL).items():
+    app.mount(f"/a2a/{_agent_name}", _agent_app)
 
 
 @app.exception_handler(Exception)
