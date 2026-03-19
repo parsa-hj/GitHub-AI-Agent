@@ -11,6 +11,9 @@ OLLAMA_HOST: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 GITHUB_TOKEN: str = (os.getenv("GITHUB_TOKEN") or "").strip()
 GITHUB_REPO: str = (os.getenv("GITHUB_REPO") or "").strip()
 REPO_PATH: str = os.getenv("REPO_PATH", "")
+# Base URL used to populate A2A agent-card ``url`` fields.
+# Override when the app is deployed behind a reverse proxy or at a custom host.
+A2A_BASE_URL: str = (os.getenv("A2A_BASE_URL") or "http://localhost:8000").rstrip("/")
 
 # Resolve REPO_PATH to absolute when set
 if REPO_PATH:
